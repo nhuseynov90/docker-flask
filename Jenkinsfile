@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE = "nhuseynov/flaskapp:0.3"
+    }
+
     stages {
         stage('checkout') {
             steps {
@@ -17,21 +21,21 @@ pipeline {
         stage('building docker image') {
             steps {
                 sh 'echo "Building docker image"'
-                sh 'docker build . -t nhuseynov/flaskapp:0.2'
+                sh 'docker build . -t $IMAGE'
             }
         }
         stage('push image to dockerhub') {
             steps {
                 withDockerRegistry(credentialsId: 'nhuseynov-dockerhub-cred', url: 'https://index.docker.io/v1/') {
                     sh '''
-                        docker push nhuseynov/flaskapp:0.2
+                        docker push $IMAGE
                     '''
                 }
             }
         }
         stage('deleting docker images after pushing to dockerhub') {
             steps {
-                sh 'docker rmi nhuseynov/flaskapp:0.2'
+                sh 'docker rmi $IMAGE'
             }
         }
     }
